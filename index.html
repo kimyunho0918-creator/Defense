@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>불편 디펜스 - 학교 축제 스페셜</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;900&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   불편 디펜스 - "방과후 야간 축제" 리디자인 v3
+   ========================================================================== */
+:root {
+  --bg-deep:    #131a2e;   /* 야간 하늘 남색 */
+  --bg-panel:   #1c2540;
+  --bg-card:    #232e52;
+  --line:       #35426e;
+  --line-soft:  #2b3660;
+  --lantern:    #ffb648;   /* 축제 청사초롱 앰버 */
+  --lantern-dk: #e08f14;
+  --mint:       #4ce0b3;   /* 잔디/성공 민트 */
+  --coral:      #ff6b81;   /* 위험/불편몹 코랄 */
+  --sky:        #6ea8ff;   /* 정보 블루 */
+  --text:       #f2f5ff;
+  --text-muted: #8c99c4;
+  --font-display: 'Jua', 'Noto Sans KR', sans-serif;
+  --font-body:  'Noto Sans KR', sans-serif;
+  --font-en:    'Outfit', 'Noto Sans KR', sans-serif;
+  --radius: 14px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  font-family: var(--font-body);
+  background:
+    radial-gradient(1100px 500px at 15% -10%, rgba(110,168,255,0.12), transparent 60%),
+    radial-gradient(900px 500px at 90% 110%, rgba(255,182,72,0.10), transparent 60%),
+    var(--bg-deep);
+  color: var(--text);
+  overflow: hidden;
+}
+button { font-family: inherit; }
+input  { font-family: inherit; }
+
+#app-container { width: 100vw; height: 100vh; position: relative; }
+.screen { display: none; width: 100%; height: 100%; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ── 공통 카드/버튼 ─────────────────────────────── */
+.web-card {
+  background: linear-gradient(180deg, var(--bg-card), var(--bg-panel));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+.btn {
+  border: none; cursor: pointer; border-radius: 10px;
+  padding: 10px 16px; font-weight: 700; font-size: 0.88rem;
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.btn:active { transform: translateY(1px) scale(0.98); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--lantern), var(--lantern-dk));
+  color: #33220a;
+  box-shadow: 0 4px 14px rgba(255,182,72,0.35);
+}
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-secondary {
+  background: transparent; color: var(--text);
+  border: 1.5px solid var(--line);
+}
+.btn-secondary:hover { border-color: var(--sky); color: var(--sky); }
+.btn-accent {
+  background: linear-gradient(135deg, var(--mint), #23b98c);
+  color: #062b20;
+}
+.btn-accent:hover { filter: brightness(1.06); }
+
+/* ── 축제 가랜드(시그니처) ───────────────────────── */
+.bunting {
+  height: 26px; flex-shrink: 0;
+  background:
+    linear-gradient(135deg, transparent 50%, transparent 50%),
+    repeating-linear-gradient(90deg,
+      var(--coral) 0 34px, var(--lantern) 34px 68px,
+      var(--mint) 68px 102px, var(--sky) 102px 136px);
+  -webkit-mask: conic-gradient(from -45deg at 50% 100%, #000 90deg, transparent 0) 0 0 / 34px 100%;
+          mask: conic-gradient(from -45deg at 50% 100%, #000 90deg, transparent 0) 0 0 / 34px 100%;
+  opacity: 0.9;
+}
+
+/* ==========================================================================
+   화면 1: 로비
+   ========================================================================== */
+#screen-lobby { padding: 0; overflow-y: auto; }
+.lobby-inner { padding: 18px 28px 30px; width: 100%; max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
+
+.lobby-header { text-align: center; padding: 14px 0 20px; }
+.lobby-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  letter-spacing: 2px;
+  background: linear-gradient(180deg, #ffe9c2, var(--lantern) 55%, var(--lantern-dk));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 6px 30px rgba(255,182,72,0.25);
+}
+.lobby-subtitle { color: var(--text-muted); margin-top: 4px; font-size: 0.95rem; letter-spacing: 1px; }
+.lobby-subtitle::before, .lobby-subtitle::after { content: " ✦ "; color: var(--lantern); }
+
+.lobby-main { width: 100%; display: flex; flex-direction: column; gap: 20px; align-items: center; margin-top: 20px; }
+
+/* 게임 시작 전용 카드 */
+.start-card { padding: 40px 20px; width: 100%; max-width: 500px; text-align: center; }
+.start-title {
+  font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 24px;
+  color: var(--lantern);
+}
+
+/* 설명 탭 카드 */
+.desc-card { padding: 0; overflow: hidden; width: 100%; max-width: 800px; }
+.desc-tabs { display: flex; border-bottom: 1px solid var(--line); background: rgba(0,0,0,0.15); }
+.desc-tab {
+  flex: 1; padding: 12px 6px; text-align: center; cursor: pointer;
+  font-size: 0.85rem; font-weight: 700; color: var(--text-muted);
+  border-bottom: 3px solid transparent; transition: all .15s;
+}
+.desc-tab:hover { color: var(--text); }
+.desc-tab.active { color: var(--lantern); border-bottom-color: var(--lantern); background: rgba(255,182,72,0.06); }
+.desc-content-wrapper { padding: 16px 18px; max-height: 340px; overflow-y: auto; }
+.desc-content { display: none; }
+.desc-content.active { display: block; animation: fadeUp .25s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.desc-rule-text p { font-size: 0.87rem; line-height: 1.65; color: #cdd6f4; }
+.desc-rule-text strong { color: var(--lantern); }
+.desc-rule-highlight {
+  margin-top: 12px; padding: 12px 14px; font-size: 0.8rem; line-height: 1.6;
+  background: rgba(255,107,129,0.08); border: 1px solid rgba(255,107,129,0.35);
+  border-radius: 10px; color: #ffc6cf;
+}
+.desc-list-item {
+  display: flex; gap: 12px; padding: 11px 8px; border-radius: 10px;
+  border-bottom: 1px dashed var(--line-soft); align-items: center;
+}
+.desc-list-item:hover { background: rgba(255,255,255,0.03); }
+.desc-item-emoji { flex-shrink: 0; }
+.desc-item-vis {
+  width: 44px; height: 44px; border-radius: 10px; font-size: 1.4rem;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.18);
+}
+.desc-item-info { min-width: 0; }
+.desc-item-name { font-weight: 700; font-size: 0.9rem; }
+.desc-item-name .cost-tag { color: var(--lantern); font-size: 0.78rem; margin-left: 6px; font-family: var(--font-en); }
+.desc-item-details { font-size: 0.75rem; color: var(--sky); margin-top: 2px; font-family: var(--font-en); }
+.desc-item-desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
+/* ==========================================================================
+   화면 2: 게임
+   ========================================================================== */
+#screen-game.active { display: flex; flex-direction: column; }
+
+/* 상단 HUD */
+.game-hud {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 16px; gap: 12px; flex-shrink: 0;
+  background: linear-gradient(180deg, #1a2340, #161e38);
+  border-bottom: 1px solid var(--line);
+}
+.hud-left { display: flex; gap: 10px; flex-wrap: wrap; }
+.hud-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 14px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--bg-deep);
+  font-family: var(--font-en); font-weight: 700; font-size: 0.88rem;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.hud-item .hud-ico { font-size: 1rem; }
+.hud-item .hud-label { font-size: 0.62rem; color: var(--text-muted); font-family: var(--font-body); letter-spacing: 1px; }
+#hud-hp   { border-color: rgba(255,107,129,0.5); }
+#hud-gold { border-color: rgba(255,182,72,0.5); }
+#hud-gold span.val { color: var(--lantern); }
+#hud-score{ border-color: rgba(110,168,255,0.5); }
+#hud-score span.val { color: var(--sky); }
+#hud-wave { border-color: rgba(76,224,179,0.5); }
+#hud-wave span.val { color: var(--mint); }
+.hp-mini-bar { width: 74px; height: 8px; border-radius: 99px; background: #33203a; overflow: hidden; border: 1px solid rgba(255,107,129,0.4); }
+.hp-mini-fill { height: 100%; width: 100%; border-radius: 99px; background: linear-gradient(90deg, #ff8d9e, var(--coral)); transition: width .25s; }
+.hud-item.warning { animation: hpPulse 0.9s ease-in-out infinite; }
+@keyframes hpPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,107,129,0); }
+  50%     { box-shadow: 0 0 14px 2px rgba(255,107,129,0.55); border-color: var(--coral); }
+}
+.hud-right { display: flex; gap: 8px; }
+.hud-btn {
+  min-width: 42px; height: 38px; padding: 0 10px; border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--bg-card); color: var(--text);
+  font-size: 0.95rem; font-weight: 700; font-family: var(--font-en);
+  transition: all .12s;
+}
+.hud-btn:hover { border-color: var(--lantern); }
+.hud-btn.active { background: linear-gradient(135deg, var(--lantern), var(--lantern-dk)); color: #33220a; border-color: transparent; }
+
+/* 캔버스 */
+#canvas-container { flex: 1; position: relative; min-height: 0; background: #10361f; }
+#game-canvas { display: block; cursor: crosshair; }
+
+#placement-cancel-guide {
+  display: none; position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  padding: 8px 18px; border-radius: 999px; font-size: 0.8rem; font-weight: 700;
+  background: rgba(19,26,46,0.92); border: 1px solid var(--lantern); color: var(--lantern);
+  z-index: 5; pointer-events: none; backdrop-filter: blur(4px);
+  animation: fadeUp .2s ease;
+}
+
+/* 선택 타워 패널 */
+#selected-tower-panel {
+  display: none; flex-direction: column; gap: 8px;
+  position: absolute; top: 14px; right: 14px; width: 218px; z-index: 6;
+  padding: 14px; border-radius: var(--radius);
+  background: rgba(24,32,58,0.94); border: 1px solid var(--line);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.45); backdrop-filter: blur(6px);
+}
+.selected-panel-title { font-family: var(--font-display); font-size: 0.95rem; color: var(--lantern); }
+.selected-panel-detail { font-size: 0.78rem; line-height: 1.65; color: #cdd6f4; }
+.selected-panel-detail strong { color: var(--text); font-size: 0.9rem; }
+.tower-level-stars { color: var(--lantern); letter-spacing: 2px; font-size: 0.85rem; }
+.stat-up { color: var(--mint); font-size: 0.72rem; }
+.btn-upgrade {
+  background: linear-gradient(135deg, var(--mint), #23b98c); color: #062b20;
+  padding: 9px 8px; font-size: 0.8rem;
+}
+.btn-upgrade:disabled { filter: grayscale(0.8); opacity: 0.55; cursor: not-allowed; }
+.btn-sell {
+  background: transparent; border: 1.5px solid rgba(255,107,129,0.6); color: var(--coral);
+  padding: 7px 8px; font-size: 0.75rem;
+}
+.btn-sell:hover { background: rgba(255,107,129,0.1); }
+
+/* 하단 통합 바 */
+.game-hud-bottom {
+  flex-shrink: 0; display: flex; align-items: stretch; gap: 14px;
+  padding: 10px 16px;
+  background: linear-gradient(180deg, #161e38, #121931);
+  border-top: 1px solid var(--line);
+}
+.game-shop-container {
+  flex: 1.4; display: flex; align-items: center; gap: 10px; min-width: 0;
+}
+.shop-title {
+  font-family: var(--font-display); font-size: 0.9rem; color: var(--text-muted);
+  flex-shrink: 0; writing-mode: horizontal-tb;
+}
+#tower-shop-buttons { display: flex; gap: 8px; overflow-x: auto; padding: 2px; }
+#tower-shop-buttons::-webkit-scrollbar { height: 5px; }
+.shop-btn {
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+  padding: 8px 14px; border-radius: 12px; cursor: pointer;
+  background: var(--bg-card); border: 1.5px solid var(--line); color: var(--text);
+  font-size: 0.8rem; font-weight: 700; transition: all .12s;
+}
+.shop-btn:hover:not(:disabled) { border-color: var(--lantern); transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.3); }
+.shop-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.shop-btn.placing { border-color: var(--lantern); background: rgba(255,182,72,0.12); }
+.shop-btn-ico {
+  width: 30px; height: 30px; border-radius: 8px; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.18);
+}
+.shop-btn-cost { color: var(--lantern); font-family: var(--font-en); font-size: 0.75rem; }
+
+.game-skills-hud-row { flex: 1; display: flex; align-items: center; gap: 12px; min-width: 300px; }
+.skill-gauge-container { flex: 1; min-width: 130px; }
+.skill-gauge-label {
+  display: flex; justify-content: space-between; font-size: 0.68rem;
+  color: var(--text-muted); margin-bottom: 5px; font-weight: 700;
+}
+.skill-gauge-label span:last-child { font-family: var(--font-en); color: var(--sky); }
+.skill-gauge-bar-outer {
+  height: 12px; border-radius: 99px; background: var(--bg-deep);
+  border: 1px solid var(--line); overflow: hidden;
+}
+.skill-gauge-bar-inner {
+  height: 100%; width: 0%; border-radius: 99px;
+  background: linear-gradient(90deg, #4c7dff, var(--sky), #9bd0ff);
+  box-shadow: 0 0 10px rgba(110,168,255,0.6);
+  transition: width .3s;
+}
+.skill-buttons-container { display: flex; gap: 8px; }
+.skill-btn {
+  position: relative; width: 62px; height: 54px; border-radius: 12px; cursor: pointer;
+  background: var(--bg-card); border: 1.5px solid var(--line); color: var(--text);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  transition: all .12s;
+}
+.skill-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.skill-btn:not(:disabled) { border-color: var(--sky); box-shadow: 0 0 12px rgba(110,168,255,0.25); }
+.skill-btn:not(:disabled):hover { transform: translateY(-2px); }
+.skill-btn-emoji { font-size: 1.25rem; }
+.skill-btn-cost { font-size: 0.6rem; font-family: var(--font-en); color: var(--sky); font-weight: 700; }
+.skill-btn-tooltip {
+  display: none; position: absolute; bottom: 62px; left: 50%; transform: translateX(-50%);
+  width: 190px; padding: 9px 11px; border-radius: 10px; font-size: 0.7rem; line-height: 1.5;
+  background: rgba(19,26,46,0.96); border: 1px solid var(--line); z-index: 20;
+  pointer-events: none; text-align: left; color: #cdd6f4;
+}
+.skill-btn-tooltip strong { color: var(--lantern); }
+.skill-btn:hover .skill-btn-tooltip { display: block; }
+
+/* 모달 */
+.game-modal {
+  display: none; position: absolute; inset: 0; z-index: 40;
+  background: rgba(10,14,28,0.85); backdrop-filter: blur(8px);
+  align-items: center; justify-content: center;
+}
+.game-modal.active { display: flex; animation: fadeUp .3s ease; }
+.modal-content {
+  width: min(420px, 90vw); padding: 40px 30px; text-align: center;
+  background: linear-gradient(180deg, var(--bg-card), var(--bg-panel));
+  border: 1px solid var(--line); border-radius: 20px;
+  box-shadow: 0 30px 70px rgba(0,0,0,0.8);
+}
+.modal-title { font-family: var(--font-display); font-size: 2.2rem; margin-bottom: 8px; }
+.modal-title.gameover { color: var(--coral); text-shadow: 0 0 24px rgba(255,107,129,0.4); }
+.modal-sub { color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem; }
+.modal-score-box {
+  padding: 20px; border-radius: 14px; margin-bottom: 25px;
+  background: var(--bg-deep); border: 1px dashed var(--line);
+}
+.modal-score-label { font-size: 0.8rem; color: var(--text-muted); letter-spacing: 2px; margin-bottom: 5px; }
+.modal-score-val {
+  font-family: var(--font-en); font-size: 3rem; font-weight: 800;
+  color: var(--lantern); text-shadow: 0 0 26px rgba(255,182,72,0.4);
+}
+.modal-tier-val {
+  margin-top: 15px; font-size: 1.4rem; font-weight: 900; color: var(--mint);
+  font-family: var(--font-display);
+}
+.modal-buttons { display: flex; justify-content: center; }
+
+/* 스크롤바 */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+@media (max-width: 900px) {
+  .game-hud-bottom { flex-direction: column; }
+  .game-skills-hud-row { min-width: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div id="app-container">
+
+  <!-- ═══════════════ 화면 1: 로비 ═══════════════ -->
+  <div id="screen-lobby" class="screen active">
+    <div class="bunting"></div>
+    <div class="lobby-inner">
+      <div class="lobby-header">
+        <h1 class="lobby-title">🏃 불편 디팬스</h1>
+        <p class="lobby-subtitle">학교 축제 스페셜 · 평화로운 학교 수호 작전</p>
+      </div>
+
+      <div class="lobby-main">
+        <!-- 게임 시작 전용 카드 -->
+        <div class="start-card web-card">
+          <div class="start-title">🎮 방과후 야간 축제 입장</div>
+          <button class="btn btn-primary" style="font-size: 1.3rem; padding: 18px 40px; width: 100%; border-radius: 14px;" onclick="game.startInit()">게임 시작하기</button>
+        </div>
+
+        <!-- 규칙/도감 -->
+        <div class="desc-card web-card">
+          <div class="desc-tabs">
+            <div class="desc-tab active" onclick="lobbyUI.switchTab(0)">게임 규칙</div>
+            <div class="desc-tab" onclick="lobbyUI.switchTab(1)">방어 타워 소개</div>
+            <div class="desc-tab" onclick="lobbyUI.switchTab(2)">불편 몹 도감</div>
+          </div>
+          <div class="desc-content-wrapper">
+            <div class="desc-content active" id="desc-tab-0">
+              <div class="desc-rule-text">
+                <p>1. 운동장에 쳐들어오는 <strong>'불편 요소(몹)'</strong>들로부터 학교를 수호해 주세요.</p>
+                <p style="margin-top:6px;">2. 몹이 오른쪽 끝의 <strong>학교 건물</strong>에 닿으면 학교 체력이 깎입니다.</p>
+                <p style="margin-top:6px;">3. 타워는 길가에 표시된 <strong>지정 자리(패드)</strong>에만 설치할 수 있고, 설치된 타워를 클릭하면 <strong>개별 강화</strong>가 가능합니다. 강화할수록 비용이 점점 비싸집니다.</p>
+                <p style="margin-top:6px;">4. <strong>6웨이브</strong>부터는 불편 몹들의 체력이 <strong>시간이 지남에 따라 조금씩 자동으로 감소</strong>합니다! (독기 효과)</p>
+                <p style="margin-top:6px;">5. <strong>필살기</strong>는 서서히 충전되는 MP를 소비해 화면 전체를 타격합니다. 배속은 최대 <strong>x3</strong>까지!</p>
+                <div class="desc-rule-highlight">
+                  ⚠️ <strong>[주의사항]</strong> 이 게임은 <strong>1회만 플레이 가능</strong>합니다. 게임이 끝나면 기록과 등급이 표시되며 재시작할 수 없습니다. 신중하게 도전하세요!
+                </div>
+              </div>
+            </div>
+            <div class="desc-content" id="desc-tab-1"><div id="desc-tower-list"></div></div>
+            <div class="desc-content" id="desc-tab-2"><div id="desc-mob-list"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 화면 2: 게임 ═══════════════ -->
+  <div id="screen-game" class="screen">
+    <div class="game-hud">
+      <div class="hud-left">
+        <div class="hud-item" id="hud-hp">
+          <span class="hud-ico">💖</span>
+          <span class="hud-label">학교 HP</span>
+          <div class="hp-mini-bar"><div class="hp-mini-fill" id="hud-hp-bar"></div></div>
+          <span class="val" id="hud-hp-val">20/20</span>
+        </div>
+        <div class="hud-item" id="hud-gold"><span class="hud-ico">💰</span><span class="hud-label">골드</span><span class="val" id="hud-gold-val">250</span></div>
+        <div class="hud-item" id="hud-score"><span class="hud-ico">🏆</span><span class="hud-label">스코어</span><span class="val" id="hud-score-val">0</span></div>
+        <div class="hud-item" id="hud-wave"><span class="hud-ico">🌊</span><span class="hud-label">웨이브</span><span class="val" id="hud-wave-val">1</span></div>
+      </div>
+      <div class="hud-right">
+        <button class="hud-btn" id="btn-speed" onclick="game.toggleSpeed()" title="배속 (x1 → x2 → x3)">⏩ x1</button>
+        <button class="hud-btn" id="btn-pause" onclick="game.togglePause()" title="일시정지/재개">⏸️</button>
+      </div>
+    </div>
+
+    <div id="canvas-container">
+      <div id="placement-cancel-guide">✨ 빛나는 빈 자리를 클릭해 배치 · [우클릭] 또는 [ESC]로 취소</div>
+
+      <div id="selected-tower-panel">
+        <div class="selected-panel-title">선택한 타워</div>
+        <div id="selected-tower-info-content" class="selected-panel-detail"></div>
+        <button class="btn btn-upgrade" id="btn-upgrade-tower" onclick="game.upgradeSelectedTower()">
+          ⬆️ 강화 (💰 <span id="upgrade-cost-val">0</span>)
+        </button>
+        <button class="btn btn-sell" onclick="game.sellSelectedTower()">
+          판매하기 (+💰 <span id="sell-refund-val">0</span>)
+        </button>
+      </div>
+
+      <canvas id="game-canvas"></canvas>
+
+      <!-- 게임오버 모달 (캔버스 위 오버레이) -->
+      <div class="game-modal" id="modal-gameover">
+        <div class="modal-content">
+          <h2 class="modal-title gameover">수고하셨습니다!</h2>
+          <p class="modal-sub">단 1회의 방어 작전이 모두 종료되었습니다.</p>
+          <div class="modal-score-box">
+            <div class="modal-score-label">최종 획득 스코어</div>
+            <div class="modal-score-val" id="modal-gameover-score">0</div>
+            <div class="modal-tier-val" id="modal-gameover-tier">등급: 평가 중...</div>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;">
+            새로고침(F5)을 해야만 게임을 다시 시작할 수 있습니다.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 하단 통합 바: 상점 완전 하단 고정 -->
+    <div class="game-hud-bottom">
+      <div class="game-shop-container">
+        <span class="shop-title">🔨 타워 상점</span>
+        <div id="tower-shop-buttons"></div>
+      </div>
+      <div class="game-skills-hud-row">
+        <div class="skill-gauge-container">
+          <div class="skill-gauge-label">
+            <span>⚡ 필살기 에너지 (MP)</span>
+            <span id="skill-mp-text">0 / 100</span>
+          </div>
+          <div class="skill-gauge-bar-outer">
+            <div class="skill-gauge-bar-inner" id="skill-mp-bar"></div>
+          </div>
+        </div>
+        <div class="skill-buttons-container">
+          <button class="skill-btn" id="skill-btn-lightning" onclick="game.triggerSkill('lightning')" disabled>
+            <span class="skill-btn-emoji">⚡</span>
+            <span class="skill-btn-cost">50 MP</span>
+            <div class="skill-btn-tooltip"><strong>수행평가 폭탄 [⚡]</strong><br>모든 몹에게 강력한 벼락 피해 (80 DMG)</div>
+          </button>
+          <button class="skill-btn" id="skill-btn-hurricane" onclick="game.triggerSkill('hurricane')" disabled>
+            <span class="skill-btn-emoji">🌪️</span>
+            <span class="skill-btn-cost">80 MP</span>
+            <div class="skill-btn-tooltip"><strong>대청소 태풍 [🌪️]</strong><br>모든 몹을 밀쳐내며 다단 피해 (40 DMG) + 3초 둔화</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ==========================================================================
+   [config] 수동 게임 설정
+   ========================================================================== */
+const GAME_CONFIG = {
+  castle: {
+    maxHp: 20,
+    imageSrc: "https://cdn.phototourl.com/free/2026-07-14-1e28fef0-a6e8-4007-98a3-35ef981868c8.png"
+  },
+  towers: [
+    { id: 'student',   name: '선생님 타워',     cost: 100, damage: 15, cooldown: 800,  range: 150, type: 'basic', imageSrc: "", desc: '기본적인 필기구 투사체를 발사해 몹을 저지합니다.' },
+    { id: 'teacher',   name: '교감선생님 타워', cost: 200, damage: 6,  cooldown: 220,  range: 125, type: 'fast',  imageSrc: "", desc: '고속으로 분필을 튕겨 몹을 타격합니다. 연사속도가 매우 높습니다.' },
+    { id: 'principal', name: '교장선생님',      cost: 400, damage: 60, cooldown: 2200, range: 200, type: 'aoe',   imageSrc: "", desc: '학교 전체에 퍼지는 훈화말씀 음파로 광역 스플래시 피해를 줍니다.' }
+  ],
+  mobs: [
+    { id: 'aircon', name: '더워죽겠는데 고장난 에어컨',      hp: 150, speed: 1,   spawnWeight: 2, goldReward: 30, scoreReward: 60, imageSrc: "https://cdn.phototourl.com/free/2026-07-14-f4d03a80-1747-4c25-b8d6-366625d95219.png", desc: '여름철 학교 최악의 빌런. 얼음 이슬을 내뿜으며 맷집이 강합니다.' },
+    { id: 'tissue', name: '화장실 급한데 다쓴 휴지심',       hp: 50,  speed: 1.5, spawnWeight: 5, goldReward: 25, scoreReward: 30, imageSrc: "https://cdn.phototourl.com/free/2026-07-14-17dbdcd3-a721-4267-b351-7a742b5a6dbc.png", desc: '화장실 칸에서 맞닥뜨리는 위기. 가벼워서 속도가 아주 빠릅니다.' },
+    { id: 'broom',  name: '먼지 안떨어지는 빗자루',          hp: 100, speed: 1.5, spawnWeight: 4, goldReward: 25, scoreReward: 45, imageSrc: "https://cdn.phototourl.com/free/2026-07-14-8475b60d-0df0-4d35-bb64-21d605f9e742.png", desc: '대청소 시간 숨을 조여오는 먼지 더미. 표준 몹입니다.' },
+    { id: 'trash',  name: '분리수거 안된 꽉찬 쓰레기통',     hp: 300, speed: 0.5, spawnWeight: 4, goldReward: 50, scoreReward: 45, imageSrc: "https://cdn.phototourl.com/free/2026-07-14-525a5f87-adf7-445c-af93-8e76a5f32a15.png", desc: '분리수거 하느라 청소가 늦어지는 답답함. 느리고 강합니다.' },
+    { id: 'Juicer', name: '걸레 물 짜야 하는데 고장난 착즙기', hp: 500, speed: 0.3, spawnWeight: 3, goldReward: 25, scoreReward: 45, imageSrc: "https://cdn.phototourl.com/free/2026-07-14-85c133ef-079f-4582-bf0b-1f578828c639.png", desc: '몇 개 안 남은 착즙기가 부서져 버렸다. 느리지만 매우 강력합니다.' }
+  ],
+  upgrade: {
+    maxLevel: 5,
+    costBase: 0.7,
+    costGrowth: 1.6,
+    damagePerLevel: 0.5,
+    rangePerLevel: 0.07,
+    cooldownFactor: 0.9
+  },
+  spawnCountMultiplier: 18
+};
+
+/* ==========================================================================
+   [audio] Web Audio API 실시간 합성 오디오 엔진
+   ========================================================================== */
+const AudioEngine = {
+  ctx: null, masterGain: null, isMuted: false,
+  bgmInterval: null, bgmStep: 0, bgmTempo: 135, isPlayingBGM: false,
+
+  init: function() {
+    if (this.ctx) return;
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    this.ctx = new AudioContextClass();
+    this.masterGain = this.ctx.createGain();
+    this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : 0.45, this.ctx.currentTime);
+    this.masterGain.connect(this.ctx.destination);
+  },
+  resume: function() {
+    this.init();
+    if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+  },
+  setMute: function(mute) {
+    this.isMuted = mute;
+    if (this.masterGain && this.ctx) this.masterGain.gain.setValueAtTime(mute ? 0 : 0.45, this.ctx.currentTime);
+  },
+  toggleMute: function() { this.setMute(!this.isMuted); return this.isMuted; },
+
+  play: function(type) {
+    this.resume();
+    if (!this.ctx || this.isMuted) return;
+    const t = this.ctx.currentTime;
+    switch (type) {
+      case 'shoot_basic': {
+        const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(440, t);
+        osc.frequency.exponentialRampToValueAtTime(100, t + 0.12);
+        gain.gain.setValueAtTime(0.3, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.12);
+        osc.connect(gain); gain.connect(this.masterGain);
+        osc.start(t); osc.stop(t + 0.13);
+        break;
+      }
+      case 'shoot_fast': {
+        const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, t);
+        osc.frequency.exponentialRampToValueAtTime(300, t + 0.07);
+        gain.gain.setValueAtTime(0.18, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.07);
+        osc.connect(gain); gain.connect(this.masterGain);
+        osc.start(t); osc.stop(t + 0.08);
+        break;
+      }
+      case 'shoot_aoe': {
+        const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, t);
+        osc.frequency.linearRampToValueAtTime(60, t + 0.4);
+        gain.gain.setValueAtTime(0.5, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.45);
+        osc.connect(gain); gain.connect(this.masterGain);
+        osc.start(t); osc.stop(t + 0.5);
+        break;
+      }
+      case 'mob_die': {
+        const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(300, t);
+        osc.frequency.exponentialRampToValueAtTime(700, t + 0.15);
+        gain.gain.setValueAtTime(0.25, t);
+        gain.gain.linearRampToValueAtTime(0.01, t + 0.15);
+        osc.connect(gain); gain.connect(this.masterGain);
+        osc.start(t); osc.stop(t + 0.16);
+        break;
+      }
+      case 'castle_hit': {
+        const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(100, t);
+        osc.frequency.linearRampToValueAtTime(30, t + 0.35);
+        gain.gain.setValueAtTime(0.7, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+        osc.connect(gain); gain.connect(this.masterGain);
+        osc.start(t); osc.stop(t + 0.42);
+        break;
+      }
+      case 'tower_place': {
+        const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(600, t);
+        osc.frequency.setValueAtTime(900, t + 0.05);
+        gain.gain.setValueAtTime(0.25, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.12);
+        osc.connect(gain); gain.connect(this.masterGain);
+        osc.start(t); osc.stop(t + 0.13);
+        break;
+      }
+      case 'tower_upgrade': {
+        const notes = [523.25, 659.25, 880.00];
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, t + idx * 0.07);
+          gain.gain.setValueAtTime(0.22, t + idx * 0.07);
+          gain.gain.exponentialRampToValueAtTime(0.01, t + idx * 0.07 + 0.18);
+          osc.connect(gain); gain.connect(this.masterGain);
+          osc.start(t + idx * 0.07); osc.stop(t + idx * 0.07 + 0.2);
+        });
+        break;
+      }
+      case 'skill_lightning': {
+        const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(1200, t);
+        osc.frequency.setValueAtTime(100, t + 0.15);
+        gain.gain.setValueAtTime(0.6, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
+        osc.connect(gain); gain.connect(this.masterGain);
+        osc.start(t); osc.stop(t + 0.55);
+        break;
+      }
+      case 'skill_hurricane': {
+        const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(200, t);
+        osc.frequency.exponentialRampToValueAtTime(600, t + 0.8);
+        gain.gain.setValueAtTime(0.4, t);
+        gain.gain.linearRampToValueAtTime(0.01, t + 0.8);
+        osc.connect(gain); gain.connect(this.masterGain);
+        osc.start(t); osc.stop(t + 0.85);
+        break;
+      }
+      case 'wave_clear': {
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, t + idx * 0.12);
+          gain.gain.setValueAtTime(0.2, t + idx * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.01, t + idx * 0.12 + 0.3);
+          osc.connect(gain); gain.connect(this.masterGain);
+          osc.start(t + idx * 0.12); osc.stop(t + idx * 0.12 + 0.32);
+        });
+        break;
+      }
+      case 'wave_start': {
+        const osc1 = this.ctx.createOscillator(), osc2 = this.ctx.createOscillator(), gain = this.ctx.createGain();
+        osc1.type = 'triangle'; osc2.type = 'triangle';
+        osc1.frequency.setValueAtTime(329.63, t);
+        osc2.frequency.setValueAtTime(493.88, t);
+        gain.gain.setValueAtTime(0.35, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
+        osc1.connect(gain); osc2.connect(gain); gain.connect(this.masterGain);
+        osc1.start(t); osc2.start(t);
+        osc1.stop(t + 0.55); osc2.stop(t + 0.55);
+        break;
+      }
+      case 'game_over': {
+        const notes = [392.00, 349.23, 311.13, 261.63];
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, t + idx * 0.2);
+          gain.gain.setValueAtTime(0.3, t + idx * 0.2);
+          gain.gain.exponentialRampToValueAtTime(0.01, t + idx * 0.2 + 0.4);
+          osc.connect(gain); gain.connect(this.masterGain);
+          osc.start(t + idx * 0.2); osc.stop(t + idx * 0.2 + 0.42);
+        });
+        break;
+      }
+      case 'error': {
+        const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(140, t);
+        gain.gain.setValueAtTime(0.35, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.18);
+        osc.connect(gain); gain.connect(this.masterGain);
+        osc.start(t); osc.stop(t + 0.2);
+        break;
+      }
+    }
+  },
+
+  playBGM: function() {
+    this.resume();
+    if (this.isPlayingBGM || !this.ctx) return;
+    this.isPlayingBGM = true;
+    this.bgmStep = 0;
+    const stepTime = 60 / this.bgmTempo / 2;
+    const playTick = () => {
+      if (!this.isPlayingBGM || this.isMuted) return;
+      const t = this.ctx.currentTime;
+      if (this.bgmStep % 4 === 0) {
+        const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(150, t);
+        osc.frequency.exponentialRampToValueAtTime(0.01, t + 0.12);
+        gain.gain.setValueAtTime(0.35, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.12);
+        osc.connect(gain); gain.connect(this.masterGain);
+        osc.start(t); osc.stop(t + 0.13);
+      }
+      if (this.bgmStep % 2 === 1) {
+        const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(10000, t);
+        gain.gain.setValueAtTime(0.03, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+        osc.connect(gain); gain.connect(this.masterGain);
+        osc.start(t); osc.stop(t + 0.05);
+      }
+      const melody = [
+        261.63, 293.66, 329.63, 0,      392.00, 329.63, 392.00, 0,
+        440.00, 392.00, 440.00, 523.25, 392.00, 0,      0,      0,
+        329.63, 392.00, 440.00, 0,      523.25, 440.00, 523.25, 0,
+        587.33, 523.25, 587.33, 659.25, 523.25, 0,      0,      0
+      ];
+      const note = melody[this.bgmStep % melody.length];
+      if (note > 0 && (this.bgmStep % 16 < 12 || Math.random() > 0.4)) {
+        const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(note, t);
+        gain.gain.setValueAtTime(0.12, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+        osc.connect(gain); gain.connect(this.masterGain);
+        osc.start(t); osc.stop(t + 0.24);
+      }
+      const bass = [
+        130.81, 130.81, 196.00, 196.00,
+        146.83, 146.83, 220.00, 220.00,
+        164.81, 164.81, 220.00, 220.00,
+        196.00, 196.00, 261.63, 261.63
+      ];
+      if (this.bgmStep % 2 === 0) {
+        const bassNote = bass[Math.floor(this.bgmStep / 2) % bass.length];
+        const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(bassNote, t);
+        gain.gain.setValueAtTime(0.24, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+        osc.connect(gain); gain.connect(this.masterGain);
+        osc.start(t); osc.stop(t + 0.26);
+      }
+      this.bgmStep++;
+    };
+    this.bgmInterval = setInterval(playTick, stepTime * 1000);
+  },
+  stopBGM: function() {
+    this.isPlayingBGM = false;
+    if (this.bgmInterval) { clearInterval(this.bgmInterval); this.bgmInterval = null; }
+  }
+};
+</script>
+<script>
+/* ==========================================================================
+   [game] 게임 엔진 v8 — 회원가입 삭제/ 바로 시작 / 독기뎀 추가 / 등급표
+   ========================================================================== */
+const ImageCache = {};
+function getCachedImage(src) {
+  if (!src) return null;
+  if (ImageCache[src]) return ImageCache[src].loaded ? ImageCache[src].img : null;
+  const img = new Image();
+  ImageCache[src] = { img, loaded: false };
+  img.onload = () => { ImageCache[src].loaded = true; };
+  img.onerror = () => { ImageCache[src].loaded = false; };
+  img.src = src;
+  return null;
+}
+
+let CONFIG = JSON.parse(JSON.stringify(GAME_CONFIG));
+
+/* ── 로비 UI ──────────────────────────────────────────────── */
+const lobbyUI = {
+  init: function() {
+    this.renderDescriptions();
+  },
+  renderDescriptions: function() {
+    const towerVis = {
+      basic: ['✏️', 'linear-gradient(135deg,#6ea8ff,#3457c9)'],
+      fast:  ['🖍️', 'linear-gradient(135deg,#4ce0b3,#1d9e78)'],
+      aoe:   ['📣', 'linear-gradient(135deg,#ffb648,#d97b0c)']
+    };
+    const mobVis = {
+      aircon: ['🧊', 'linear-gradient(135deg,#9bd0ff,#4c7dff)'],
+      tissue: ['🧻', 'linear-gradient(135deg,#e8d3b4,#b08d5c)'],
+      broom:  ['🧹', 'linear-gradient(135deg,#ffd76e,#c98a1e)'],
+      trash:  ['🗑️', 'linear-gradient(135deg,#8be09b,#2f9e4f)'],
+      Juicer: ['🧃', 'linear-gradient(135deg,#c3a6ff,#7b4ce0)']
+    };
+    const tList = document.getElementById('desc-tower-list');
+    if (!tList) return;
+    tList.innerHTML = '';
+    CONFIG.towers.forEach(t => {
+      const div = document.createElement('div');
+      div.className = 'desc-list-item';
+      const [emoji, grad] = towerVis[t.type] || towerVis.basic;
+      const vis = t.imageSrc
+        ? `<img src="${escapeHTML(t.imageSrc)}" style="width:44px;height:44px;object-fit:contain;border-radius:10px;">`
+        : `<div class="desc-item-vis" style="background:${grad};">${emoji}</div>`;
+      div.innerHTML = `
+        <div class="desc-item-emoji">${vis}</div>
+        <div class="desc-item-info">
+          <div class="desc-item-name">${escapeHTML(t.name)}<span class="cost-tag">💰 ${t.cost}</span></div>
+          <div class="desc-item-details">공격력 ${t.damage} · 사거리 ${t.range}px · 쿨타임 ${t.cooldown}ms · 최대 ${CONFIG.upgrade.maxLevel}강</div>
+          <div class="desc-item-desc">${escapeHTML(t.desc || '')}</div>
+        </div>`;
+      tList.appendChild(div);
+    });
+    const mList = document.getElementById('desc-mob-list');
+    if (!mList) return;
+    mList.innerHTML = '';
+    CONFIG.mobs.forEach(m => {
+      const div = document.createElement('div');
+      div.className = 'desc-list-item';
+      const [emoji, grad] = mobVis[m.id] || ['👾', 'linear-gradient(135deg,#ff8d9e,#c92a44)'];
+      const vis = m.imageSrc
+        ? `<img src="${escapeHTML(m.imageSrc)}" style="width:44px;height:44px;object-fit:contain;border-radius:10px;">`
+        : `<div class="desc-item-vis" style="background:${grad};">${emoji}</div>`;
+      div.innerHTML = `
+        <div class="desc-item-emoji">${vis}</div>
+        <div class="desc-item-info">
+          <div class="desc-item-name">${escapeHTML(m.name)}</div>
+          <div class="desc-item-details">체력 ${m.hp} · 이동속도 ${m.speed.toFixed(1)} · 💰${m.goldReward}</div>
+          <div class="desc-item-desc">${escapeHTML(m.desc || '')}</div>
+        </div>`;
+      mList.appendChild(div);
+    });
+  },
+  switchTab: function(index) {
+    document.querySelectorAll('.desc-tab').forEach((t, i) => t.classList.toggle('active', i === index));
+    document.querySelectorAll('.desc-content').forEach((c, i) => c.classList.toggle('active', i === index));
+  }
+};
+
+/* ── 게임 엔진 ────────────────────────────────────────────── */
+const game = {
+  canvas: null, ctx: null,
+  virtualWidth: 1280, virtualHeight: 720,
+  scaleX: 1, scaleY: 1,
+
+  castleHp: 20, gold: 250, score: 0, wave: 1, mp: 0, maxMp: 100,
+  isPlaying: false, isPaused: false, speedFactor: 1, MAX_SPEED: 3,
+  loopId: null, isMuted: false,
+
+  towers: [], mobs: [], projectiles: [], particles: [], windEffects: [], lightningStrikes: [],
+
+  /* 더 길고 구불구불해진 서펜타인 경로 */
+  waypoints: [
+    { x: -60,  y: 140 },
+    { x: 200,  y: 140 },
+    { x: 200,  y: 580 },
+    { x: 430,  y: 580 },
+    { x: 430,  y: 200 },
+    { x: 660,  y: 200 },
+    { x: 660,  y: 580 },
+    { x: 890,  y: 580 },
+    { x: 890,  y: 140 },
+    { x: 1090, y: 140 },
+    { x: 1090, y: 400 },
+    { x: 1230, y: 400 }
+  ],
+  pathWidth: 58,
+  TOWER_RADIUS: 30,
+
+  /* 타워를 놓을 수 있는 지정 자리 */
+  towerSlots: [
+    { x: 110,  y: 60  }, { x: 110,  y: 260 }, { x: 110,  y: 460 },
+    { x: 315,  y: 60  }, { x: 300,  y: 300 }, { x: 300,  y: 470 },
+    { x: 545,  y: 90  }, { x: 545,  y: 400 }, { x: 545,  y: 660 },
+    { x: 775,  y: 90  }, { x: 775,  y: 400 }, { x: 775,  y: 660 },
+    { x: 990,  y: 60  }, { x: 990,  y: 280 }, { x: 990,  y: 480 },
+    { x: 1180, y: 250 }, { x: 1180, y: 560 }
+  ],
+
+  placingTowerPreset: null,
+  selectedTowerInstance: null,
+  hoveredMob: null,
+  hoverSlotIndex: -1,
+  mouseVirtualX: 0, mouseVirtualY: 0,
+
+  waveInProgress: false, mobsToSpawn: [], spawnTimer: 0, spawnInterval: 900,
+  decorations: [],
+
+  init: function() {
+    this.canvas = document.getElementById('game-canvas');
+    this.ctx    = this.canvas.getContext('2d');
+    window.addEventListener('resize', () => this.resize());
+    this.canvas.addEventListener('mousemove',   e => this.onMouseMove(e));
+    this.canvas.addEventListener('mousedown',   e => this.onMouseDown(e));
+    this.canvas.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') this.cancelPlacement(); });
+    document.getElementById('app-container').addEventListener('mousedown', e => {
+      if (!this.canvas.contains(e.target) &&
+          !document.getElementById('selected-tower-panel').contains(e.target)) {
+        this.deselectTower();
+      }
+    }, true);
+  },
+
+  resize: function() {
+    const c = document.getElementById('canvas-container');
+    if (!c) return;
+    const dpr = window.devicePixelRatio || 1;
+    const w = Math.max(c.clientWidth || window.innerWidth, 1);
+    const h = Math.max(c.clientHeight || window.innerHeight, 1);
+    this.canvas.width  = w * dpr;
+    this.canvas.height = h * dpr;
+    this.canvas.style.width  = w + 'px';
+    this.canvas.style.height = h + 'px';
+    this.scaleX = (w / this.virtualWidth) * dpr;
+    this.scaleY = (h / this.virtualHeight) * dpr;
+  },
+
+  getVirtualCoords: function(cx, cy) {
+    const r = this.canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    return {
+      x: ((cx - r.left) * dpr) / this.scaleX,
+      y: ((cy - r.top)  * dpr) / this.scaleY
+    };
+  },
+
+  isPointOnPath: function(x, y) {
+    const buf = this.pathWidth / 2 + 16;
+    for (let i = 0; i < this.waypoints.length - 1; i++) {
+      if (this.distToSegment({x, y}, this.waypoints[i], this.waypoints[i+1]) < buf) return true;
+    }
+    return false;
+  },
+
+  distToSegment: function(p, v, w) {
+    const l2 = (v.x-w.x)**2 + (v.y-w.y)**2;
+    if (l2 === 0) return Math.hypot(p.x-v.x, p.y-v.y);
+    let t = ((p.x-v.x)*(w.x-v.x) + (p.y-v.y)*(w.y-v.y)) / l2;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(p.x - (v.x + t*(w.x-v.x)), p.y - (v.y + t*(w.y-v.y)));
+  },
+
+  /* 슬롯 설치 스냅 반경을 대폭 확대하여 답답함 개선 (150px) */
+  isSlotOccupied: function(idx) { return this.towers.some(t => t.slotIndex === idx); },
+  findSlotIndexAt: function(x, y, onlyEmpty) {
+    let best = -1, bestDist = 150; 
+    this.towerSlots.forEach((s, i) => {
+      if (onlyEmpty && this.isSlotOccupied(i)) return;
+      const d = Math.hypot(s.x - x, s.y - y);
+      if (d < bestDist) { bestDist = d; best = i; }
+    });
+    return best;
+  },
+
+  onMouseMove: function(e) {
+    if (!this.isPlaying) return;
+    const c = this.getVirtualCoords(e.clientX, e.clientY);
+    this.mouseVirtualX = c.x; this.mouseVirtualY = c.y;
+    this.hoveredMob = null;
+    for (let i = this.mobs.length - 1; i >= 0; i--) {
+      if (Math.hypot(this.mobs[i].x - c.x, this.mobs[i].y - c.y) <= 28) {
+        this.hoveredMob = this.mobs[i]; break;
+      }
+    }
+    this.hoverSlotIndex = this.placingTowerPreset ? this.findSlotIndexAt(c.x, c.y, true) : -1;
+  },
+
+  onMouseDown: function(e) {
+    if (!this.isPlaying || this.isPaused) return;
+    const c = this.getVirtualCoords(e.clientX, e.clientY);
+    if (e.button === 2) { this.cancelPlacement(); return; }
+
+    /* 배치 모드: 지정 슬롯에만 설치 가능 */
+    if (this.placingTowerPreset) {
+      const preset = this.placingTowerPreset;
+      const slotIdx = this.findSlotIndexAt(c.x, c.y, true);
+      if (slotIdx >= 0 && this.gold >= preset.cost) {
+        const slot = this.towerSlots[slotIdx];
+        this.gold -= preset.cost;
+        const t = {
+          id: 'tower_' + Date.now(),
+          presetId: preset.id, name: preset.name, type: preset.type, imageSrc: preset.imageSrc,
+          baseCost: preset.cost, baseDamage: preset.damage,
+          baseCooldown: preset.cooldown, baseRange: preset.range,
+          level: 1, invested: preset.cost,
+          x: slot.x, y: slot.y, slotIndex: slotIdx, lastShotTime: 0
+        };
+        this.applyTowerStats(t);
+        this.towers.push(t);
+        this.createBlastParticles(slot.x, slot.y, '#ffb648', 12);
+        if (typeof AudioEngine !== 'undefined') AudioEngine.play('tower_place');
+        this.cancelPlacement();
+        this.updateHUD();
+      } else {
+        this.createBlastParticles(c.x, c.y, '#ff6b81', 4);
+        if (typeof AudioEngine !== 'undefined') AudioEngine.play('error');
+      }
+      return;
+    }
+
+    let clicked = null;
+    for (const t of this.towers) {
+      if (Math.hypot(t.x - c.x, t.y - c.y) < this.TOWER_RADIUS + 8) { clicked = t; break; }
+    }
+    if (clicked) this.selectTower(clicked);
+    else this.deselectTower();
+  },
+
+  /* ── 강화 시스템 ─────────────────────────────── */
+  applyTowerStats: function(t) {
+    const U = CONFIG.upgrade;
+    const lv = t.level;
+    t.damage   = Math.round(t.baseDamage * (1 + U.damagePerLevel * (lv - 1)));
+    t.range    = Math.round(t.baseRange  * (1 + U.rangePerLevel  * (lv - 1)));
+    t.cooldown = Math.max(60, Math.round(t.baseCooldown * Math.pow(U.cooldownFactor, lv - 1)));
+  },
+  getUpgradeCost: function(t) {
+    const U = CONFIG.upgrade;
+    return Math.floor(t.baseCost * U.costBase * Math.pow(U.costGrowth, t.level - 1));
+  },
+  upgradeSelectedTower: function() {
+    const t = this.selectedTowerInstance;
+    if (!t) return;
+    if (t.level >= CONFIG.upgrade.maxLevel) return;
+    const cost = this.getUpgradeCost(t);
+    if (this.gold < cost) {
+      if (typeof AudioEngine !== 'undefined') AudioEngine.play('error');
+      return;
+    }
+    this.gold -= cost;
+    t.invested += cost;
+    t.level++;
+    this.applyTowerStats(t);
+    this.createBlastParticles(t.x, t.y, '#4ce0b3', 16);
+    if (typeof AudioEngine !== 'undefined') AudioEngine.play('tower_upgrade');
+    this.selectTower(t);
+    this.updateHUD();
+  },
+
+  startPlacement: function(presetId) {
+    const preset = CONFIG.towers.find(t => t.id === presetId);
+    if (!preset) return;
+    if (this.gold < preset.cost) { alert('소환 골드가 부족합니다.'); return; }
+    if (!this.towerSlots.some((s, i) => !this.isSlotOccupied(i))) { alert('남은 빈 자리가 없습니다! 타워를 판매해 자리를 비워 주세요.'); return; }
+    this.deselectTower();
+    this.placingTowerPreset = preset;
+    document.getElementById('placement-cancel-guide').style.display = 'block';
+    document.querySelectorAll('.shop-btn').forEach(b => b.classList.toggle('placing', b.id === `shop-btn-${presetId}`));
+  },
+
+  cancelPlacement: function() {
+    this.placingTowerPreset = null;
+    this.hoverSlotIndex = -1;
+    const g = document.getElementById('placement-cancel-guide');
+    if (g) g.style.display = 'none';
+    document.querySelectorAll('.shop-btn').forEach(b => b.classList.remove('placing'));
+  },
+
+  selectTower: function(t) {
+    this.selectedTowerInstance = t;
+    const panel   = document.getElementById('selected-tower-panel');
+    const content = document.getElementById('selected-tower-info-content');
+    const refund  = document.getElementById('sell-refund-val');
+    const upBtn   = document.getElementById('btn-upgrade-tower');
+    const upCost  = document.getElementById('upgrade-cost-val');
+    const U = CONFIG.upgrade;
+    const stars = '★'.repeat(t.level) + '☆'.repeat(U.maxLevel - t.level);
+    const isMax = t.level >= U.maxLevel;
+    const nextDmg = Math.round(t.baseDamage * (1 + U.damagePerLevel * t.level));
+    content.innerHTML = `
+      <strong>${escapeHTML(t.name)}</strong><br>
+      <span class="tower-level-stars">Lv.${t.level} ${stars}</span><br>
+      공격력 ${t.damage}${isMax ? '' : ` <span class="stat-up">→ ${nextDmg}</span>`}<br>
+      사거리 ${t.range}px · 쿨타임 ${t.cooldown}ms`;
+    if (isMax) {
+      upBtn.disabled = true;
+      upBtn.innerHTML = '👑 최대 강화 완료';
+    } else {
+      const cost = this.getUpgradeCost(t);
+      upBtn.disabled = this.gold < cost;
+      upBtn.innerHTML = `⬆️ 강화 (💰 <span id="upgrade-cost-val">${cost}</span>)`;
+    }
+    refund.textContent = Math.floor(t.invested * 0.7);
+    panel.style.display = 'flex';
+  },
+
+  deselectTower: function() {
+    this.selectedTowerInstance = null;
+    const p = document.getElementById('selected-tower-panel');
+    if (p) p.style.display = 'none';
+  },
+
+  sellSelectedTower: function() {
+    if (!this.selectedTowerInstance) return;
+    const t = this.selectedTowerInstance;
+    this.gold += Math.floor(t.invested * 0.7);
+    this.towers = this.towers.filter(x => x.id !== t.id);
+    this.createBlastParticles(t.x, t.y, 'rgba(255,255,255,0.3)', 8);
+    this.deselectTower();
+    this.updateHUD();
+  },
+
+  startInit: function() {
+    document.getElementById('screen-lobby').classList.remove('active');
+    document.getElementById('screen-game').classList.add('active');
+    if (typeof AudioEngine !== 'undefined') { AudioEngine.resume(); AudioEngine.stopBGM(); AudioEngine.playBGM(); }
+    
+    // CSS 강제 적용 및 브라우저 렌더링(리플로우) 시간을 벌어주기 위한 지연 적용 
+    setTimeout(() => {
+      this.resize();
+      this.castleHp = CONFIG.castle.maxHp;
+      this.gold = 250; this.score = 0; this.wave = 1; this.mp = 0;
+      this.isPlaying = true; this.isPaused = false; this.waveInProgress = false;
+      this.towers = []; this.mobs = []; this.projectiles = [];
+      this.particles = []; this.windEffects = []; this.lightningStrikes = [];
+      this.placingTowerPreset = null; this.deselectTower();
+      this.speedFactor = 1;
+      const spBtn = document.getElementById('btn-speed');
+      spBtn.classList.remove('active'); spBtn.textContent = '⏩ x1';
+      document.getElementById('btn-pause').textContent = '⏸️';
+      this.buildDecorations();
+      this.renderShop();
+      this.updateHUD();
+      if (this.loopId) cancelAnimationFrame(this.loopId);
+      this.lastTime = performance.now();
+      this.loop(this.lastTime);
+      this.prepareWave();
+    }, 50);
+  },
+
+  renderShop: function() {
+    const shopDiv = document.getElementById('tower-shop-buttons');
+    shopDiv.innerHTML = '';
+    const icoMap = {
+      basic: ['✏️', 'linear-gradient(135deg,#6ea8ff,#3457c9)'],
+      fast:  ['🖍️', 'linear-gradient(135deg,#4ce0b3,#1d9e78)'],
+      aoe:   ['📣', 'linear-gradient(135deg,#ffb648,#d97b0c)']
+    };
+    CONFIG.towers.forEach(t => {
+      const btn = document.createElement('button');
+      btn.className = 'shop-btn';
+      btn.id = `shop-btn-${t.id}`;
+      const [emoji, grad] = icoMap[t.type] || icoMap.basic;
+      const vis = t.imageSrc
+        ? `<img src="${escapeHTML(t.imageSrc)}" style="width:30px;height:30px;object-fit:contain;border-radius:8px;">`
+        : `<span class="shop-btn-ico" style="background:${grad};">${emoji}</span>`;
+      btn.innerHTML = `${vis}<span>${escapeHTML(t.name)}</span><span class="shop-btn-cost">💰${t.cost}</span>`;
+      btn.onclick = () => this.startPlacement(t.id);
+      shopDiv.appendChild(btn);
+    });
+  },
+
+  buildDecorations: function() {
+    this.decorations = [];
+    this.decorations.push({ x: 60,   y: 660, type: 'tent' });
+    this.decorations.push({ x: 1210, y: 60,  type: 'tent' });
+    this.decorations.push({ x: 330,  y: 690, type: 'balloon' });
+    this.decorations.push({ x: 700,  y: 60,  type: 'balloon' });
+    this.decorations.push({ x: 1000, y: 690, type: 'balloon' });
+    this.decorations.push({ x: 430,  y: 60,  type: 'bench' });
+    this.decorations.push({ x: 660,  y: 690, type: 'bench' });
+    let attempts = 0;
+    while (this.decorations.length < 34 && attempts < 400) {
+      attempts++;
+      const x = 30 + Math.random() * (this.virtualWidth - 60);
+      const y = 30 + Math.random() * (this.virtualHeight - 60);
+      const nearSlot = this.towerSlots.some(s => Math.hypot(s.x - x, s.y - y) < 55);
+      const nearCastle = Math.hypot(1230 - x, 400 - y) < 110;
+      if (!this.isPointOnPath(x, y) && !nearSlot && !nearCastle) {
+        const types = ['tree1', 'tree2', 'flower1', 'flower2', 'flower1'];
+        this.decorations.push({ x, y, type: types[Math.floor(Math.random() * types.length)] });
+      }
+    }
+  },
+
+  updateHUD: function() {
+    document.getElementById('hud-hp-val').textContent = `${this.castleHp}/${CONFIG.castle.maxHp}`;
+    document.getElementById('hud-hp-bar').style.width = `${Math.max(0, this.castleHp / CONFIG.castle.maxHp) * 100}%`;
+    document.getElementById('hud-hp').classList.toggle('warning', this.castleHp <= CONFIG.castle.maxHp * 0.3);
+    document.getElementById('hud-gold-val').textContent  = this.gold.toLocaleString();
+    document.getElementById('hud-score-val').textContent = this.score.toLocaleString();
+    document.getElementById('hud-wave-val').textContent  = this.wave;
+    document.getElementById('skill-mp-text').textContent = `${Math.floor(this.mp)} / ${this.maxMp}`;
+    document.getElementById('skill-mp-bar').style.width  = `${(this.mp / this.maxMp) * 100}%`;
+    document.getElementById('skill-btn-lightning').disabled = this.mp < 50;
+    document.getElementById('skill-btn-hurricane').disabled = this.mp < 80;
+    CONFIG.towers.forEach(t => {
+      const b = document.getElementById(`shop-btn-${t.id}`);
+      if (b) b.disabled = this.gold < t.cost;
+    });
+    if (this.selectedTowerInstance) {
+      const t = this.selectedTowerInstance;
+      const upBtn = document.getElementById('btn-upgrade-tower');
+      if (t.level < CONFIG.upgrade.maxLevel) upBtn.disabled = this.gold < this.getUpgradeCost(t);
+    }
+  },
+
+  togglePause: function() {
+    this.isPaused = !this.isPaused;
+    const btn = document.getElementById('btn-pause');
+    btn.textContent = this.isPaused ? '▶️' : '⏸️';
+    btn.title = this.isPaused ? '게임 재개' : '일시정지';
+    if (!this.isPaused) this.lastTime = performance.now();
+  },
+
+  /* x1 → x2 → x3 → x1 순환, 최대 3배속 */
+  toggleSpeed: function() {
+    const btn = document.getElementById('btn-speed');
+    this.speedFactor = this.speedFactor >= this.MAX_SPEED ? 1 : this.speedFactor + 1;
+    btn.classList.toggle('active', this.speedFactor > 1);
+    btn.textContent = `⏩ x${this.speedFactor}`;
+  },
+
+  prepareWave: function() {
+    this.waveInProgress = true;
+    this.mobsToSpawn = [];
+    const diff = getDifficultyMultiplier(this.score);
+    const count = Math.floor((CONFIG.spawnCountMultiplier + this.wave * 2) * Math.sqrt(diff));
+    const pool = [];
+    CONFIG.mobs.forEach(m => { for (let i = 0; i < m.spawnWeight; i++) pool.push(m); });
+    for (let i = 0; i < count; i++) {
+      const p = pool[Math.floor(Math.random() * pool.length)];
+      const hp = Math.round(p.hp * (1 + (this.wave-1)*0.18) * diff);
+      const sp = p.speed * (1 + (this.wave-1)*0.05) * Math.min(3.5, diff**0.25);
+      this.mobsToSpawn.push({
+        presetId: p.id, name: p.name, imageSrc: p.imageSrc,
+        hp, maxHp: hp, speed: sp,
+        goldReward:  Math.round(p.goldReward  * (1+(this.wave-1)*0.08)),
+        scoreReward: Math.round(p.scoreReward * (1+(this.wave-1)*0.1)),
+        flashTicks: 0, slowTimer: 0,
+        animPhase: Math.random() * Math.PI * 2
+      });
+    }
+    this.spawnTimer = 0;
+    this.updateHUD();
+  },
+
+  triggerSkill: function(type) {
+    if (this.isPaused) return;
+    if (type === 'lightning') {
+      if (this.mp < 50) return;
+      this.mp -= 50;
+      if (typeof AudioEngine !== 'undefined') AudioEngine.play('skill_lightning');
+      this.mobs.forEach(mob => {
+        mob.hp -= 80; mob.flashTicks = 12;
+        this.lightningStrikes.push({ startX: mob.x+(Math.random()-0.5)*40, startY:0, endX:mob.x, endY:mob.y, life:15 });
+        this.createBlastParticles(mob.x, mob.y, '#eab308', 8);
+      });
+    } else if (type === 'hurricane') {
+      if (this.mp < 80) return;
+      this.mp -= 80;
+      if (typeof AudioEngine !== 'undefined') AudioEngine.play('skill_hurricane');
+      for (let i=0; i<5; i++) this.windEffects.push({ x:(i*260)+100, y:this.virtualHeight/2, radius:40+Math.random()*50, angle:Math.random()*Math.PI*2, life:60 });
+      this.mobs.forEach(mob => {
+        mob.hp -= 40; mob.flashTicks = 12; mob.slowTimer = 180;
+        mob.waypointIndex = Math.max(0, mob.waypointIndex - 1);
+        const wpt = this.waypoints[mob.waypointIndex];
+        mob.x = wpt.x; mob.y = wpt.y;
+        this.createBlastParticles(mob.x, mob.y, '#38bdf8', 6);
+      });
+    }
+    this.updateHUD();
+  },
+
+  loop: function(ts) {
+    if (!this.isPlaying) return;
+    const passes = this.isPaused ? 0 : this.speedFactor;
+    
+    // dt를 사용하여 시간 기반 체력 감소 등에 활용하기 위해 시간 계산
+    const dt = Math.min((ts - this.lastTime) / 1000, 0.1) * passes;
+    this.lastTime = ts;
+
+    for (let p = 0; p < passes; p++) this.update(0.0166); // 고정 업데이트 스텝 사용 (16.6ms)
+
+    // 애니메이션/렌더링과 별개로 실제 경과된 시간에 비례하는 로직 처리 (예: 독기 데미지)
+    if (!this.isPaused && this.wave >= 6) {
+      for (let i = this.mobs.length - 1; i >= 0; i--) {
+        const mob = this.mobs[i];
+        // 초당 최대 체력의 5% 자동 감소 (6웨이브 이후)
+        mob.hp -= (mob.maxHp * 0.05) * dt; 
+        
+        if (mob.hp <= 0) {
+          this.gold += mob.goldReward; this.score += mob.scoreReward;
+          this.createBlastParticles(mob.x, mob.y, '#4ce0b3', 15);
+          if (typeof AudioEngine !== 'undefined') AudioEngine.play('mob_die');
+          this.mobs.splice(i, 1); 
+          this.updateHUD(); 
+        }
+      }
+    }
+
+    this.draw();
+    this.loopId = requestAnimationFrame(t => this.loop(t));
+  },
+
+  update: function(dt) {
+    this.mp = Math.min(this.maxMp, this.mp + 1.8/60);
+    if (Math.floor(this.mp) % 2 === 0) this.updateHUD();
+
+    if (this.waveInProgress && this.mobsToSpawn.length > 0) {
+      this.spawnTimer += 16.67;
+      if (this.spawnTimer >= this.spawnInterval) {
+        this.spawnTimer = 0;
+        const d = this.mobsToSpawn.shift();
+        d.x = this.waypoints[0].x; d.y = this.waypoints[0].y;
+        d.waypointIndex = 0; d.id = 'mob_'+Date.now()+'_'+Math.random();
+        this.mobs.push(d);
+      }
+    }
+
+    for (let i = this.mobs.length-1; i >= 0; i--) {
+      const mob = this.mobs[i];
+      let spd = mob.speed * (mob.slowTimer > 0 ? 0.5 : 1);
+      if (mob.slowTimer > 0) mob.slowTimer--;
+      const tgt = this.waypoints[mob.waypointIndex+1];
+      if (tgt) {
+        const dx = tgt.x - mob.x, dy = tgt.y - mob.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist <= spd) { mob.x = tgt.x; mob.y = tgt.y; mob.waypointIndex++; }
+        else { mob.x += dx/dist*spd; mob.y += dy/dist*spd; }
+      } else {
+        this.castleHp--;
+        this.updateHUD();
+        this.createBlastParticles(mob.x, mob.y, '#ff6b81', 12);
+        if (typeof AudioEngine !== 'undefined') AudioEngine.play('castle_hit');
+        this.mobs.splice(i, 1);
+        if (this.castleHp <= 0) { this.gameOver(); return; }
+        continue;
+      }
+      if (mob.flashTicks > 0) mob.flashTicks--;
+    }
+
+    const now = performance.now();
+    this.towers.forEach(t => {
+      if (now - t.lastShotTime < t.cooldown / this.speedFactor) return;
+      let tgt = null, best = -9999;
+      this.mobs.forEach(mob => {
+        if (Math.hypot(mob.x-t.x, mob.y-t.y) > t.range) return;
+        const wn = this.waypoints[mob.waypointIndex+1];
+        const prog = mob.waypointIndex*1000 + (wn ? 1000 - Math.hypot(wn.x-mob.x, wn.y-mob.y) : 1000);
+        if (prog > best) { best = prog; tgt = mob; }
+      });
+      if (tgt) { t.lastShotTime = now; this.fireProjectile(t, tgt); }
+    });
+
+    for (let i = this.projectiles.length-1; i >= 0; i--) {
+      const p = this.projectiles[i];
+      const mi = this.mobs.findIndex(m => m.id === p.targetId);
+      if (mi === -1) { this.projectiles.splice(i,1); continue; }
+      const mob = this.mobs[mi];
+      const dx = mob.x-p.x, dy = mob.y-p.y;
+      const dist = Math.hypot(dx,dy);
+      if (dist <= p.speed) {
+        mob.hp -= p.damage; mob.flashTicks = 5;
+        if (p.type === 'aoe') { this.aoeDamage(p.x, p.y, 100, p.damage*0.5); this.createBlastParticles(p.x,p.y,'#ffb648',20); }
+        else this.createBlastParticles(p.x,p.y,'#6ea8ff',6);
+        this.projectiles.splice(i,1);
+        
+        // 투사체 맞고 체력 이하일 경우 데스 처리 (이중 안전장치)
+        if (mob.hp <= 0) {
+          this.gold += mob.goldReward; this.score += mob.scoreReward;
+          this.createBlastParticles(mob.x, mob.y, '#4ce0b3', 15);
+          if (typeof AudioEngine !== 'undefined') AudioEngine.play('mob_die');
+          this.mobs.splice(mi, 1); this.updateHUD(); 
+        }
+      } else { p.x += dx/dist*p.speed; p.y += dy/dist*p.speed; }
+    }
+
+    for (let i = this.particles.length-1; i >= 0; i--) {
+      const pt = this.particles[i];
+      pt.x += pt.vx; pt.y += pt.vy; pt.vy += pt.gravity||0; pt.life--;
+      if (pt.life <= 0) this.particles.splice(i,1);
+    }
+    for (let i = this.windEffects.length-1; i >= 0; i--) {
+      const w = this.windEffects[i]; w.angle += 0.2; w.radius += 1.5; w.life--;
+      if (w.life <= 0) this.windEffects.splice(i,1);
+    }
+    for (let i = this.lightningStrikes.length-1; i >= 0; i--) {
+      this.lightningStrikes[i].life--;
+      if (this.lightningStrikes[i].life <= 0) this.lightningStrikes.splice(i,1);
+    }
+
+    if (this.waveInProgress && this.mobsToSpawn.length === 0 && this.mobs.length === 0) {
+      this.waveInProgress = false;
+      this.wave++;
+      this.gold += 50 + this.wave*10;
+      if (typeof AudioEngine !== 'undefined') AudioEngine.play('wave_clear');
+      this.updateHUD();
+      setTimeout(() => {
+        if (this.isPlaying && !this.waveInProgress) {
+          if (typeof AudioEngine !== 'undefined') AudioEngine.play('wave_start');
+          this.prepareWave();
+        }
+      }, 3500);
+    }
+  },
+
+  fireProjectile: function(tower, target) {
+    const map = { fast: {spd:12, type:'fast'}, aoe: {spd:6, type:'aoe'} };
+    const cfg = map[tower.type] || { spd:8, type:'basic' };
+    this.projectiles.push({ x:tower.x, y:tower.y, targetId:target.id, speed:cfg.spd, damage:tower.damage, type:cfg.type });
+    const sfx = { fast:'shoot_fast', aoe:'shoot_aoe' };
+    if (typeof AudioEngine !== 'undefined') AudioEngine.play(sfx[tower.type] || 'shoot_basic');
+  },
+
+  aoeDamage: function(x, y, r, dmg) {
+    this.mobs.forEach(m => { if (Math.hypot(m.x-x, m.y-y) <= r) { m.hp -= dmg; m.flashTicks = 5; } });
+  },
+
+  createBlastParticles: function(x, y, color, count) {
+    for (let i = 0; i < count; i++) {
+      const a = Math.random()*Math.PI*2, spd = 1+Math.random()*4;
+      this.particles.push({ x, y, vx:Math.cos(a)*spd, vy:Math.sin(a)*spd, color, radius:2+Math.random()*3, life:15+Math.floor(Math.random()*15) });
+    }
+  },
+
+  /* ══════════════ 벡터 아트 드로잉 ══════════════ */
+  drawDefaultCastle: function(ctx, x, y) {
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.beginPath(); ctx.ellipse(x, y+52, 58, 14, 0, 0, Math.PI*2); ctx.fill();
+    const grad = ctx.createLinearGradient(x-48, y-50, x+48, y+50);
+    grad.addColorStop(0, '#fef3d7'); grad.addColorStop(1, '#e8cfa0');
+    ctx.fillStyle = grad;
+    ctx.fillRect(x-48, y-22, 96, 72);
+    ctx.fillStyle = '#c2543f';
+    ctx.beginPath();
+    ctx.moveTo(x-56, y-22); ctx.lineTo(x, y-58); ctx.lineTo(x+56, y-22);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y-32, 9, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#7a4a12'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(x, y-32, 9, 0, Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x, y-32); ctx.lineTo(x, y-38); ctx.moveTo(x, y-32); ctx.lineTo(x+5, y-30); ctx.stroke();
+    ctx.fillStyle = '#7fb2e5';
+    [[-36,-10],[-14,-10],[8,-10],[30,-10],[-36,14],[30,14]].forEach(([wx,wy]) => { ctx.fillRect(x+wx, y+wy, 12, 14); });
+    ctx.fillStyle = '#8a5a2b';
+    ctx.fillRect(x-12, y+18, 24, 32);
+    ctx.fillStyle = '#5c3a17';
+    ctx.beginPath(); ctx.arc(x+6, y+34, 2, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#666'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(x, y-58); ctx.lineTo(x, y-76); ctx.stroke();
+    ctx.fillStyle = '#ffb648';
+    ctx.beginPath(); ctx.moveTo(x, y-76); ctx.lineTo(x+18, y-71); ctx.lineTo(x, y-66); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  },
+
+  drawDefaultTower: function(ctx, x, y, type, level) {
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.beginPath(); ctx.ellipse(x, y+24, 24, 8, 0, 0, Math.PI*2); ctx.fill();
+
+    if (type === 'fast') {
+      const g = ctx.createLinearGradient(x-20, y-24, x+20, y+24);
+      g.addColorStop(0, '#63f0c4'); g.addColorStop(1, '#128a68');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.roundRect(x-19, y-8, 38, 32, 8); ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#0f6e53';
+      ctx.beginPath(); ctx.arc(x, y-8, 14, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(x-9, y-28, 6, 20); ctx.fillRect(x+3,  y-28, 6, 20);
+      ctx.fillStyle = '#ffd76e';
+      ctx.fillRect(x-9, y-28, 6, 4); ctx.fillRect(x+3,  y-28, 6, 4);
+    } else if (type === 'aoe') {
+      const g = ctx.createLinearGradient(x-22, y-24, x+22, y+24);
+      g.addColorStop(0, '#ffcf7d'); g.addColorStop(1, '#c97a10');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.moveTo(x-22, y+24); ctx.lineTo(x-14, y-6); ctx.lineTo(x+14, y-6); ctx.lineTo(x+22, y+24);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#8a4d05';
+      ctx.beginPath(); ctx.moveTo(x-6, y-8); ctx.lineTo(x+20, y-30); ctx.lineTo(x+22, y-14); ctx.lineTo(x-2, y-2);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#ffe9c2';
+      ctx.beginPath(); ctx.arc(x-6, y-6, 6, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,182,72,0.7)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(x+22, y-22, 7, -0.8, 0.8); ctx.stroke();
+      ctx.beginPath(); ctx.arc(x+22, y-22, 12, -0.8, 0.8); ctx.stroke();
+    } else {
+      const g = ctx.createLinearGradient(x-20, y-24, x+20, y+24);
+      g.addColorStop(0, '#8db8ff'); g.addColorStop(1, '#2649b0');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const a = (i * Math.PI) / 3 + Math.PI/6;
+        const rx = x + Math.cos(a) * 22, ry = y + 4 + Math.sin(a) * 22;
+        i === 0 ? ctx.moveTo(rx, ry) : ctx.lineTo(rx, ry);
+      }
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.save();
+      ctx.translate(x, y+2); ctx.rotate(-Math.PI/5);
+      ctx.fillStyle = '#ffd76e'; ctx.fillRect(-4, -30, 8, 24);
+      ctx.fillStyle = '#f3b3c2'; ctx.fillRect(-4, -8, 8, 5);
+      ctx.fillStyle = '#e8cfa0';
+      ctx.beginPath(); ctx.moveTo(-4, -30); ctx.lineTo(0, -38); ctx.lineTo(4, -30); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#333';
+      ctx.beginPath(); ctx.moveTo(-1.5, -34); ctx.lineTo(0, -38); ctx.lineTo(1.5, -34); ctx.closePath(); ctx.fill();
+      ctx.restore();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(x, y+4, 6, 0, Math.PI*2); ctx.fill();
+    }
+
+    if (level && level > 1) {
+      ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#ffd76e';
+      ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 3;
+      const stars = '★'.repeat(Math.min(level - 1, 4));
+      ctx.strokeText(stars, x, y + 40); ctx.fillText(stars, x, y + 40);
+    }
+    ctx.restore();
+  },
+
+  drawDefaultMob: function(ctx, mob) {
+    const t = performance.now() / 1000;
+    const bob = Math.sin(t * 6 + mob.animPhase) * 3;
+    const x = mob.x, y = mob.y + bob;
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.beginPath(); ctx.ellipse(mob.x, mob.y + 26, 18 - bob*0.8, 6, 0, 0, Math.PI*2); ctx.fill();
+
+    const id = mob.presetId;
+    if (id === 'aircon') {
+      const g = ctx.createLinearGradient(x-22, y-16, x+22, y+16);
+      g.addColorStop(0, '#f0f7ff'); g.addColorStop(1, '#b9d4f2');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.roundRect(x-23, y-16, 46, 30, 7); ctx.fill();
+      ctx.strokeStyle = '#5a86b8'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.strokeStyle = '#7fa8d1'; ctx.lineWidth = 2;
+      for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.moveTo(x-16, y+2+i*4); ctx.lineTo(x+16, y+2+i*4); ctx.stroke(); }
+      ctx.strokeStyle = '#31517a'; ctx.lineWidth = 2.5;
+      [[-10,0],[10,0]].forEach(([ex]) => {
+        ctx.beginPath(); ctx.moveTo(x+ex-4, y-11); ctx.lineTo(x+ex+4, y-4);
+        ctx.moveTo(x+ex+4, y-11); ctx.lineTo(x+ex-4, y-4); ctx.stroke();
+      });
+      ctx.strokeStyle = '#ffd76e'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x+23, y-14); ctx.lineTo(x+29, y-19); ctx.lineTo(x+26, y-12); ctx.stroke();
+      ctx.fillStyle = '#7fd0ff';
+      ctx.beginPath(); ctx.ellipse(x-27, y+2, 3, 5, 0, 0, Math.PI*2); ctx.fill();
+    } else if (id === 'tissue') {
+      const g = ctx.createLinearGradient(x-14, y, x+14, y);
+      g.addColorStop(0, '#d8b98c'); g.addColorStop(0.5, '#c09a63'); g.addColorStop(1, '#9a763f');
+      ctx.fillStyle = g;
+      ctx.fillRect(x-14, y-20, 28, 40);
+      ctx.fillStyle = '#7c5a2b';
+      ctx.beginPath(); ctx.ellipse(x, y-20, 14, 6, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#4d3517';
+      ctx.beginPath(); ctx.ellipse(x, y-20, 8, 3.5, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#c09a63';
+      ctx.beginPath(); ctx.ellipse(x, y+20, 14, 6, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.moveTo(x+12, y-14);
+      ctx.quadraticCurveTo(x+24, y-10 + Math.sin(t*8)*4, x+18, y-2);
+      ctx.quadraticCurveTo(x+14, y-6, x+12, y-8); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#3d2c12';
+      ctx.beginPath(); ctx.arc(x-6, y-2, 2.5, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x+6, y-2, 2.5, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#3d2c12'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(x, y+8, 4, Math.PI*1.15, Math.PI*1.85); ctx.stroke();
+    } else if (id === 'broom') {
+      ctx.strokeStyle = '#8a5a2b'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(x, y-26); ctx.lineTo(x, y+2); ctx.stroke();
+      const g = ctx.createLinearGradient(x, y, x, y+24);
+      g.addColorStop(0, '#ffd76e'); g.addColorStop(1, '#c98a1e');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.moveTo(x-6, y); ctx.lineTo(x+6, y); ctx.lineTo(x+17, y+24); ctx.lineTo(x-17, y+24); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#a06a10'; ctx.lineWidth = 1.5;
+      for (let i = -12; i <= 12; i += 6) { ctx.beginPath(); ctx.moveTo(x+i*0.4, y+4); ctx.lineTo(x+i, y+24); ctx.stroke(); }
+      ctx.strokeStyle = '#e35d5d'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(x-7, y-4); ctx.lineTo(x+7, y-4); ctx.stroke();
+      ctx.fillStyle = 'rgba(160,160,160,0.55)';
+      [[-20, 18, 5], [22, 20, 4], [-24, 8, 3]].forEach(([dx, dy, r]) => { ctx.beginPath(); ctx.arc(x+dx + Math.sin(t*5+dx)*2, y+dy, r, 0, Math.PI*2); ctx.fill(); });
+      ctx.fillStyle = '#5c3a10';
+      ctx.beginPath(); ctx.arc(x-5, y+10, 2.5, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x+5, y+10, 2.5, 0, Math.PI*2); ctx.fill();
+    } else if (id === 'trash') {
+      const g = ctx.createLinearGradient(x-20, y-14, x+20, y+22);
+      g.addColorStop(0, '#8be09b'); g.addColorStop(1, '#237a3d');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.moveTo(x-19, y-10); ctx.lineTo(x+19, y-10); ctx.lineTo(x+15, y+24); ctx.lineTo(x-15, y+24); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#155c2b'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#f5f0e6'; ctx.beginPath(); ctx.arc(x-9, y-14, 6, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#ffb648'; ctx.beginPath(); ctx.arc(x+3, y-18, 5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#ff8d9e'; ctx.beginPath(); ctx.arc(x+12, y-13, 5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#155c2b';
+      ctx.save(); ctx.translate(x+8, y-22); ctx.rotate(0.5 + Math.sin(t*4)*0.06); ctx.fillRect(-20, -3, 40, 6); ctx.restore();
+      ctx.fillStyle = '#333';
+      ctx.beginPath(); ctx.arc(x + 24 + Math.sin(t*7)*4, y - 24 + Math.cos(t*9)*4, 2, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#0d3a1b';
+      ctx.fillRect(x-9, y+2, 6, 3); ctx.fillRect(x+3, y+2, 6, 3);
+    } else if (id === 'Juicer') {
+      const g = ctx.createLinearGradient(x-20, y-20, x+20, y+22);
+      g.addColorStop(0, '#d9c8ff'); g.addColorStop(1, '#7b4ce0');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.roundRect(x-20, y-6, 40, 30, 6); ctx.fill();
+      ctx.strokeStyle = '#4a2a94'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#b8a2ea';
+      ctx.beginPath(); ctx.ellipse(x-8, y-12, 8, 9, 0, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(x+8, y-12, 8, 9, 0, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#4a2a94'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.ellipse(x-8, y-12, 8, 9, 0, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(x+8, y-12, 8, 9, 0, 0, Math.PI*2); ctx.stroke();
+      ctx.strokeStyle = '#4a2a94'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(x+18, y-16); ctx.lineTo(x+27, y-26); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x+29, y-30); ctx.lineTo(x+33, y-35); ctx.stroke();
+      ctx.fillStyle = '#9fb8c9';
+      ctx.beginPath(); ctx.moveTo(x-4, y-4); ctx.quadraticCurveTo(x, y+4, x-6, y+10); ctx.quadraticCurveTo(x-10, y+4, x-4, y-4); ctx.fill();
+      ctx.fillStyle = '#7fd0ff';
+      ctx.beginPath(); ctx.ellipse(x-6, y+16 + Math.sin(t*6)*1.5, 2.5, 4, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#2c1660';
+      ctx.beginPath(); ctx.arc(x+4, y+6, 2.5, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x+13, y+6, 2.5, 0, Math.PI*2); ctx.fill();
+    } else {
+      const g = ctx.createRadialGradient(x, y, 3, x, y, 22);
+      g.addColorStop(0, '#c78dff'); g.addColorStop(1, '#6d2ab8');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.ellipse(x, y, 20, 18 + Math.sin(t*6+mob.animPhase)*2, 0, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(x-7, y-4, 4, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x+7, y-4, 4, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#2c1050';
+      ctx.beginPath(); ctx.arc(x-7, y-4, 2, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x+7, y-4, 2, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.restore();
+  },
+
+  drawDefaultDeco: function(ctx, x, y, type) {
+    ctx.save();
+    if (type === 'tree1' || type === 'tree2') {
+      ctx.fillStyle = 'rgba(0,0,0,0.12)';
+      ctx.beginPath(); ctx.ellipse(x, y+20, 16, 5, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#78350f'; ctx.fillRect(x-4, y+4, 8, 16);
+      ctx.fillStyle = type === 'tree1' ? '#1e8a4a' : '#279c42';
+      ctx.beginPath(); ctx.arc(x, y-8, 16, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.15)';
+      ctx.beginPath(); ctx.arc(x-5, y-13, 7, 0, Math.PI*2); ctx.fill();
+    } else if (type === 'flower1' || type === 'flower2') {
+      const c = type === 'flower1' ? '#ff6b81' : '#ffd76e';
+      ctx.fillStyle = c;
+      for (let i = 0; i < 5; i++) {
+        const a = (i/5) * Math.PI * 2;
+        ctx.beginPath(); ctx.arc(x + Math.cos(a)*5, y + Math.sin(a)*5, 4, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI*2); ctx.fill();
+    } else if (type === 'bench') {
+      ctx.fillStyle = 'rgba(0,0,0,0.12)';
+      ctx.beginPath(); ctx.ellipse(x, y+13, 20, 4, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#b0772a'; ctx.fillRect(x-17, y-4, 34, 8);
+      ctx.fillStyle = '#5c3a17'; ctx.fillRect(x-14, y+4, 4, 9); ctx.fillRect(x+10, y+4, 4, 9);
+    } else if (type === 'balloon') {
+      const colors = ['#ff6b81', '#ffb648', '#6ea8ff'];
+      colors.forEach((c, i) => {
+        const bx = x + (i-1)*10, by = y - 14 - (i%2)*6;
+        ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(bx, by+9); ctx.lineTo(x, y+10); ctx.stroke();
+        ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(bx, by, 7, 9, 0, 0, Math.PI*2); ctx.fill();
+      });
+    } else if (type === 'tent') {
+      ctx.fillStyle = 'rgba(0,0,0,0.12)';
+      ctx.beginPath(); ctx.ellipse(x, y+22, 32, 7, 0, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(x-32, y+22); ctx.lineTo(x, y-24); ctx.lineTo(x+32, y+22); ctx.closePath();
+      ctx.fillStyle = '#ff6b81'; ctx.fill();
+      ctx.save(); ctx.clip();
+      ctx.fillStyle = '#fff';
+      for (let i = -32; i < 32; i += 16) ctx.fillRect(x+i, y-24, 8, 50);
+      ctx.restore();
+      ctx.strokeStyle = '#c92a44'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x-32, y+22); ctx.lineTo(x, y-24); ctx.lineTo(x+32, y+22); ctx.stroke();
+      ctx.fillStyle = '#ffd76e'; ctx.beginPath(); ctx.arc(x, y-24, 4, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.restore();
+  },
+
+  /* ══════════════ 메인 렌더링 ══════════════ */
+  draw: function() {
+    const ctx = this.ctx;
+    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    
+    if (this.scaleX === 0 || this.scaleY === 0) return;
+    
+    ctx.save();
+    ctx.scale(this.scaleX, this.scaleY);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    const now = performance.now() / 1000;
+
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, this.virtualHeight);
+    bgGrad.addColorStop(0, '#5faa63'); bgGrad.addColorStop(1, '#4c9052');
+    ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, this.virtualWidth, this.virtualHeight);
+    ctx.fillStyle = 'rgba(255,255,255,0.045)';
+    for (let c = 0; c < 20; c += 2) {
+      ctx.save(); ctx.translate(c*90 - 200, 0); ctx.rotate(0.06); ctx.fillRect(0, -100, 90, this.virtualHeight + 200); ctx.restore();
+    }
+    ctx.fillStyle = 'rgba(0,60,20,0.10)';
+    for (let i = 0; i < 90; i++) {
+      const gx = ((i * 733) % 1280), gy = ((i * 397) % 720); ctx.fillRect(gx, gy, 3, 3);
+    }
+
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.lineWidth = this.pathWidth + 8; ctx.strokeStyle = '#8f6b3f';
+    ctx.beginPath(); ctx.moveTo(this.waypoints[0].x, this.waypoints[0].y);
+    this.waypoints.slice(1).forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke();
+    ctx.lineWidth = this.pathWidth; ctx.strokeStyle = '#d3ac77'; ctx.stroke();
+    ctx.lineWidth = this.pathWidth - 10; ctx.strokeStyle = '#e5c698'; ctx.stroke();
+    ctx.setLineDash([14, 16]); ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = 'bold 20px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('➤', 40, this.waypoints[0].y + 7);
+
+    this.towerSlots.forEach((s, i) => {
+      const occupied = this.isSlotOccupied(i);
+      if (occupied) return;
+      const placing = !!this.placingTowerPreset;
+      const isHover = placing && this.hoverSlotIndex === i;
+      ctx.save();
+      const pulse = placing ? 0.5 + Math.sin(now * 5) * 0.25 : 0.22;
+      ctx.fillStyle = isHover ? 'rgba(255,182,72,0.35)' : `rgba(255,255,255,${placing ? 0.16 : 0.08})`;
+      ctx.strokeStyle = isHover ? '#ffb648' : `rgba(255,255,255,${pulse})`;
+      ctx.lineWidth = isHover ? 3 : 2; ctx.setLineDash(isHover ? [] : [6, 5]);
+      ctx.beginPath(); ctx.roundRect(s.x - 26, s.y - 26, 52, 52, 12); ctx.fill(); ctx.stroke(); ctx.setLineDash([]);
+      if (placing) { ctx.font = '16px sans-serif'; ctx.textAlign = 'center'; ctx.globalAlpha = isHover ? 1 : 0.55; ctx.fillText('🔨', s.x, s.y + 6); }
+      ctx.restore();
+    });
+
+    this.decorations.forEach(d => this.drawDefaultDeco(ctx, d.x, d.y, d.type));
+
+    const cp = this.waypoints[this.waypoints.length-1];
+    const castleImg = getCachedImage(CONFIG.castle.imageSrc);
+    if (castleImg) ctx.drawImage(castleImg, cp.x-60, cp.y-60, 120, 120);
+    else this.drawDefaultCastle(ctx, cp.x, cp.y);
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 2; ctx.setLineDash([4, 6]);
+    ctx.beginPath(); ctx.arc(cp.x, cp.y, 66, 0, Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+
+    this.towers.forEach(t => {
+      const selected = this.selectedTowerInstance && this.selectedTowerInstance.id === t.id;
+      if (!selected) return;
+      ctx.fillStyle = 'rgba(110,168,255,0.08)'; ctx.strokeStyle = 'rgba(110,168,255,0.55)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(t.x, t.y, t.range, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    });
+
+    this.towers.forEach(t => {
+      const img = getCachedImage(t.imageSrc);
+      ctx.save();
+      if (this.selectedTowerInstance && this.selectedTowerInstance.id === t.id) { ctx.shadowColor = '#6ea8ff'; ctx.shadowBlur = 14; }
+      if (img) {
+        ctx.drawImage(img, t.x-28, t.y-28, 56, 56);
+        if (t.level > 1) {
+          ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#ffd76e'; ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 3;
+          const stars = '★'.repeat(Math.min(t.level - 1, 4)); ctx.strokeText(stars, t.x, t.y + 40); ctx.fillText(stars, t.x, t.y + 40);
+        }
+      } else { this.drawDefaultTower(ctx, t.x, t.y, t.type, t.level); }
+      ctx.restore();
+    });
+
+    this.mobs.forEach(mob => {
+      ctx.save();
+      if (mob.flashTicks > 0) { ctx.shadowColor = '#ff6b81'; ctx.shadowBlur = 15; ctx.globalAlpha = 0.85; }
+      const img = getCachedImage(mob.imageSrc);
+      if (img) ctx.drawImage(img, mob.x-27, mob.y-27, 54, 54);
+      else this.drawDefaultMob(ctx, mob);
+      ctx.restore();
+
+      if (mob.slowTimer > 0) {
+        ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.arc(mob.x, mob.y+12, 17, 0, Math.PI*2); ctx.stroke();
+      }
+      const bW=38, bH=5, bX=mob.x-bW/2, bY=mob.y-38;
+      ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.beginPath(); ctx.roundRect(bX-1,bY-1,bW+2,bH+2,3); ctx.fill();
+      const ratio = Math.max(0, mob.hp/mob.maxHp);
+      ctx.fillStyle = ratio > 0.5 ? '#4ce0b3' : ratio > 0.25 ? '#ffb648' : '#ff6b81';
+      ctx.beginPath(); ctx.roundRect(bX,bY,bW*ratio,bH,2.5); ctx.fill();
+    });
+
+    if (this.placingTowerPreset) {
+      const px = this.placingTowerPreset;
+      const idx = this.hoverSlotIndex;
+      const snapX = idx >= 0 ? this.towerSlots[idx].x : this.mouseVirtualX;
+      const snapY = idx >= 0 ? this.towerSlots[idx].y : this.mouseVirtualY;
+      const ok = idx >= 0 && this.gold >= px.cost;
+      ctx.fillStyle   = ok ? 'rgba(76,224,179,0.08)' : 'rgba(255,107,129,0.08)';
+      ctx.strokeStyle = ok ? 'rgba(76,224,179,0.55)' : 'rgba(255,107,129,0.55)';
+      ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(snapX, snapY, px.range, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.save(); ctx.globalAlpha = 0.65;
+      const img = getCachedImage(px.imageSrc);
+      if (img) ctx.drawImage(img, snapX-28, snapY-28, 56, 56);
+      else this.drawDefaultTower(ctx, snapX, snapY, px.type, 1);
+      ctx.restore();
+    }
+
+    this.projectiles.forEach(p => {
+      ctx.save();
+      const colors = { fast: '#4ce0b3', aoe: '#ffb648', basic: '#6ea8ff' };
+      ctx.fillStyle = colors[p.type] || '#6ea8ff'; ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 8;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.type === 'aoe' ? 6 : 4.5, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    });
+
+    this.particles.forEach(pt => {
+      if (pt.drawEmoji) { ctx.fillStyle = '#ff6b81'; ctx.fillRect(pt.x - 4, pt.y - 4, 8, 8); } 
+      else { ctx.fillStyle=pt.color; ctx.beginPath(); ctx.arc(pt.x,pt.y,pt.radius,0,Math.PI*2); ctx.fill(); }
+    });
+
+    this.windEffects.forEach(w => {
+      ctx.strokeStyle='rgba(56,189,248,0.4)'; ctx.lineWidth=3.5;
+      ctx.beginPath(); ctx.arc(w.x,w.y,w.radius,w.angle,w.angle+Math.PI); ctx.stroke();
+    });
+    this.lightningStrikes.forEach(l => {
+      ctx.strokeStyle='#ffd76e'; ctx.lineWidth=3; ctx.shadowColor='#fbbf24'; ctx.shadowBlur=8;
+      ctx.beginPath(); ctx.moveTo(l.startX,l.startY);
+      const mx=(l.startX+l.endX)/2+(Math.random()-0.5)*60;
+      ctx.lineTo(mx,(l.startY+l.endY)/2); ctx.lineTo(l.endX,l.endY); ctx.stroke(); ctx.shadowBlur=0;
+    });
+
+    if (this.hoveredMob && this.mobs.includes(this.hoveredMob)) {
+      const mob = this.hoveredMob;
+      ctx.font = 'bold 12px sans-serif'; const nw = ctx.measureText(mob.name).width;
+      const bw = Math.max(nw, 80) + 24, bh = 44;
+      const bx = Math.min(Math.max(mob.x - bw/2, 6), this.virtualWidth - bw - 6);
+      const by = Math.max(mob.y - 76, 6);
+      ctx.fillStyle='rgba(19,26,46,0.94)'; ctx.strokeStyle='#35426e'; ctx.lineWidth=1.2;
+      ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,8); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#f2f5ff'; ctx.textAlign='center'; ctx.fillText(mob.name, bx + bw/2, by+16);
+      const hw=bw-16, hx=bx+8, hy=by+28;
+      ctx.fillStyle='#2b3660'; ctx.fillRect(hx,hy,hw,6);
+      ctx.fillStyle='#ff6b81'; ctx.fillRect(hx,hy,hw*Math.max(0,mob.hp/mob.maxHp),6);
+    }
+    ctx.restore();
+  },
+
+  gameOver: function() {
+    this.isPlaying = false; this.cancelPlacement();
+    if (this.loopId) cancelAnimationFrame(this.loopId);
+    if (typeof AudioEngine !== 'undefined') { AudioEngine.stopBGM(); AudioEngine.play('game_over'); }
+    
+    // 최종 등급 계산
+    let tier = "💀 고장난 자물쇠";
+    if (this.score >= 20000) tier = "👑 g.o.a.t";
+    else if (this.score >= 10000) tier = "🔥 엄청난 보안";
+    else if (this.score >= 6500) tier = "🌟 최고급 자물쇠";
+    else if (this.score >= 5000) tier = "😥 다이소 자물쇠";
+    else if (this.score >= 0) tier = "💀 고장난 자물쇠";
+
+    document.getElementById('modal-gameover-score').textContent = this.score.toLocaleString();
+    document.getElementById('modal-gameover-tier').textContent = `등급: ${tier}`;
+    
+    document.getElementById('modal-gameover').classList.add('active');
+  }
+};
+
+function getDifficultyMultiplier(score) {
+  if (score < 0) return 1;
+  const base = score / 6000;
+  return score < 5300 ? 1 + base**3*3 : 1 + base**9*150;
+}
+
+function escapeHTML(str) {
+  if (!str) return '';
+  return String(str).replace(/[&<>'"]/g, t => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t]||t));
+}
+</script>
+<script>
+/* ==========================================================================
+   [admin] 로비 UI 초기화 바인딩
+   ========================================================================== */
+window.onload = function() { lobbyUI.init(); game.init(); };
+</script>
+</body>
+</html>
